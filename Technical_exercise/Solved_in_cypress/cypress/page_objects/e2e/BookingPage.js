@@ -1,4 +1,6 @@
-import SharedUtilities from './SharedUtilities';
+import SharedUtilities from './SharedUtilities'
+import ReservationPage from './ReservationPage'
+
 
 class BookingPage {
     //Locators
@@ -33,8 +35,6 @@ class BookingPage {
                 .parents('.card') 
                 // Find the 'Book now' link specifically within this card's context
                 .contains('Book now') 
-                // Click
-                .click()
     }
 
     ListOfDates(targetDayOfMonth, targetDate) {
@@ -52,6 +52,18 @@ class BookingPage {
                 .find(`[aria-label*="${targetMonthName}"]`)
                 // Find elements that contain the day number text (e.g., '1')
                 .contains(new RegExp(`^${targetDayOfMonth}$`)) 
+    }
+
+    GetPriceFromRoomCard(typeOfRoom){
+        return cy.contains(typeOfRoom) 
+            .parents('.card-body')             
+            .siblings('.card-footer')           
+            .contains('Book now')              
+            .prev('div')                   
+            .invoke('text')
+            .then((rawText) => {
+                return SharedUtilities.extractNumericValues(rawText)
+            })
     }
 
     //Methods
@@ -79,24 +91,82 @@ class BookingPage {
         this.selectCheckOutDate(checkOutDate)
     }
 
-    bookGivenTypeOfRoomOnGivenInterval(typeOfRoom,checkInDate,checkOutDate){
-        SharedUtilities.verifyCheckInDateIsBeforeOrTheSameAsCheckOutDateAndThatWeUseRealValidFutureDates(checkInDate,checkOutDate)
-        this.setCheckInDateAndCheckOutDate(checkInDate,checkOutDate)
-        this.BookNowButtonOfGivenTypeOfRoom(typeOfRoom)
+    bookGivenTypeOfRoomOnGivenInterval(typeOfRoom, checkInDate, checkOutDate, firstName, lastName, email, phone) {
+        // 1️ Verify dates and set them
+        SharedUtilities.verifyCheckInDateIsBeforeOrTheSameAsCheckOutDateAndThatWeUseRealValidFutureDates(checkInDate, checkOutDate)
+        this.setCheckInDateAndCheckOutDate(checkInDate, checkOutDate)
+        this.checkDateInsideDatePicker(this.CheckInDatePicker, checkInDate)
+        this.checkDateInsideDatePicker(this.CheckOutDatePicker, checkOutDate)
 
-    }
+        // 2️ Get the price from the room card
+        this.GetPriceFromRoomCard(typeOfRoom).then((priceFromRoomCard) => {
+            
+            // 3️ Book the room and verify we're on the reservation page
+            this.clickBookNowButtonOfGivenTypeOfRoom(typeOfRoom)
+            cy.url().should('include', 'reservation')
+            ReservationPage.checkBookThisRoomTitleExistsAndIsVisble()
 
-    formatDate(date) {
-        let d = new Date(date);
-        let month = d.toLocaleString('default', { month: 'long' });
-        let year = d.getFullYear();
-        return `${month} ${year}`;
+            // 4️ Now get the price from the reservation page
+            ReservationPage.GetPriceUnderBookThisRoom().then((priceFromReservationPage) => {
+            
+                // 5️ Finally compare the two prices
+                expect(priceFromRoomCard).to.eq(priceFromReservationPage)
+            })
+        })
+
+        // 6 Compare price with the price from summary price
+        ReservationPage.GetPriceUnderBookThisRoom().then((priceUnderBookThisRoom) => {
+            ReservationPage.GetPriceUnderPriceSummary().then((priceFromSummary) => {
+                expect(priceUnderBookThisRoom).to.eq(priceFromSummary)
+            })
+        })
+
+        // 7 Check number of days
+        ReservationPage.GetNumberOfReservedDaysUnderPriceSummary().then((numberOfDays) => {
+            expect(numberOfDays).to.eq(SharedUtilities.getNumberOfDays(checkInDate,checkOutDate))
+        })
+
+        //8 Check the total sum of money without fees
+        ReservationPage.GetPriceUnderBookThisRoom().then((priceUnderBookThisRoom) => {
+            ReservationPage.GetTotalWithoutFeesOfReservedDaysUnderPriceSummary().then((totalPriceWithoutFees) => {
+                expect(totalPriceWithoutFees).to.eq(priceUnderBookThisRoom*SharedUtilities.getNumberOfDays(checkInDate,checkOutDate))
+            })
+        })
+
+        //9 Check total with fees
+        ReservationPage.GetTotalPriceWithFees().then((totalPrice) => {
+            ReservationPage.GetTotalWithoutFeesOfReservedDaysUnderPriceSummary().then((totalPriceWithoutFees) => {
+                ReservationPage.GetCleaningFee().then((cleaningFee) => {
+                    ReservationPage.GetServiceFee().then((serviceFee) => {
+                        expect(totalPrice).to.eq(totalPriceWithoutFees + cleaningFee + serviceFee)
+                    })
+                })
+            })
+        })
+
+        // 10 Click Reserve Now button
+        ReservationPage.clickReserveNowButton()
+
+        // 11 Fill reservation form
+        ReservationPage.fillFirstName(firstName)
+        ReservationPage.fillLastName(lastName)
+        ReservationPage.fillEmail(email)
+        ReservationPage.fillPhone(phone)
+
+        // 12 Click Reserve Now button and set intercept
+        cy.intercept('POST', '/api/booking').as('postBooking')
+        ReservationPage.clickReserveNowButtonWithoutId()
+
+        // 13 Check post was triggered
+        cy.wait('@postBooking').then((interception) => {
+            expect(interception).to.not.be.null
+        })
     }
 
     selectDate(targetDate) {
-        const date = new Date(targetDate);
-        const targetMonthYear = this.formatDate(date);
-        const targetDayOfMonth = date.getDate();
+        const date = new Date(targetDate)
+        const targetMonthYear = SharedUtilities.formatDate(date)
+        const targetDayOfMonth = date.getDate()
 
         const navigate = () => {
             return this.CurrentMonthYear.then((currentMonthYear) => {
@@ -127,7 +197,19 @@ class BookingPage {
             // 2. Once the correct month is visible, click the day number.
             .then(() => {
                 this.ListOfDates(targetDayOfMonth,targetDate).click()
-            });
+            })
+    }
+
+    checkDateInsideDatePicker(input, dateToCheck){
+        const dateParts = dateToCheck.split('-')
+        // 2. Reorder the components to [Year, Month, Day] and join them with a forward slash
+        // The order in the array is: [2], [1], [0]
+        const dateSlashReordered = dateParts[2] + '/' + dateParts[1] + '/' + dateParts[0]
+        input.should('have.value', dateSlashReordered)
+    }
+
+    clickBookNowButtonOfGivenTypeOfRoom(typeOfRoom) {
+        this.BookNowButtonOfGivenTypeOfRoom(typeOfRoom).click()
     }
 }
 
