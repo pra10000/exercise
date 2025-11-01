@@ -1,4 +1,5 @@
 import SharedUtilities from './SharedUtilities'
+import BookingPage from './BookingPage';
 
 class ReservationPage {
     //Locators
@@ -126,6 +127,72 @@ class ReservationPage {
 
     clickReserveNowButtonWithoutId(){
         this.ReserveNowButtonWithoutId.click()
+    }
+
+    reserveRoom(firstName, lastName, email, phone){
+        // 1 Fill reservation form
+        this.fillFirstName(firstName)
+        this.fillLastName(lastName)
+        this.fillEmail(email)
+        this.fillPhone(phone)
+    
+        // 2 Click Reserve Now button and set intercept
+        cy.intercept('POST', '/api/booking').as('postBooking')
+        this.clickReserveNowButtonWithoutId()
+    
+        // 3 Check post was triggered
+        cy.wait('@postBooking').then((interception) => {
+            expect(interception).to.not.be.null
+        })
+    }
+
+    checkPricesDaysAndTotal(typeOfRoom, checkInDate, checkOutDate){
+        // 1 Compare price of room from booking page to the price on the reservation page
+        // a.Get the price from the room card
+        BookingPage.GetPriceFromRoomCard(typeOfRoom).then((priceFromRoomCard) => {
+            
+            // b.Book the room and verify we're on the reservation page
+            BookingPage.clickBookNowButtonOfGivenTypeOfRoom(typeOfRoom)
+            cy.url().should('include', 'reservation')
+            this.checkBookThisRoomTitleExistsAndIsVisble()
+
+            // c.Now get the price from the reservation page
+            this.GetPriceUnderBookThisRoom().then((priceFromReservationPage) => {
+            
+                //d.Finally compare the two prices
+                expect(priceFromRoomCard).to.eq(priceFromReservationPage)
+            })
+        })
+
+        // 2 Compare price under Book This Room with the price from summary price
+        this.GetPriceUnderBookThisRoom().then((priceUnderBookThisRoom) => {
+            this.GetPriceUnderPriceSummary().then((priceFromSummary) => {
+                expect(priceUnderBookThisRoom).to.eq(priceFromSummary)
+            })
+        })
+
+        // 3 Check number of days is correct
+        this.GetNumberOfReservedDaysUnderPriceSummary().then((numberOfDays) => {
+            expect(numberOfDays).to.eq(SharedUtilities.getNumberOfDays(checkInDate,checkOutDate))
+        })
+
+        // 4 Check the total sum of money without fees is correct
+        this.GetPriceUnderBookThisRoom().then((priceUnderBookThisRoom) => {
+            this.GetTotalWithoutFeesOfReservedDaysUnderPriceSummary().then((totalPriceWithoutFees) => {
+                expect(totalPriceWithoutFees).to.eq(priceUnderBookThisRoom*SharedUtilities.getNumberOfDays(checkInDate,checkOutDate))
+            })
+        })
+
+        // 5 Check total with fees
+        this.GetTotalPriceWithFees().then((totalPrice) => {
+            this.GetTotalWithoutFeesOfReservedDaysUnderPriceSummary().then((totalPriceWithoutFees) => {
+                this.GetCleaningFee().then((cleaningFee) => {
+                    this.GetServiceFee().then((serviceFee) => {
+                        expect(totalPrice).to.eq(totalPriceWithoutFees + cleaningFee + serviceFee)
+                    })
+                })
+            })
+        })
     }
 }
 

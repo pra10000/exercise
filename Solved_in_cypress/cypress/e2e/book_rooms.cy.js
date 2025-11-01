@@ -1,5 +1,6 @@
-import SharedUtilities from '../page_objects/e2e/SharedUtilities';
-import BookingPage from '../page_objects/e2e/BookingPage';
+import SharedUtilities from '../page_objects/e2e/SharedUtilities'
+import BookingPage from '../page_objects/e2e/BookingPage'
+import ReservationPage from '../page_objects/e2e/ReservationPage'
 
 const startDate = new Date();
 
@@ -40,16 +41,11 @@ describe('Book 10 and 20 days for each type of rooms using a fixture date', func
             const data = this.bookingData;
 
             cy.log(`Attempting to book ${scenario.roomType} for ${scenario.days} days, Check-out: ${scenario.checkOutDate}`)
-            
-            BookingPage.bookGivenTypeOfRoomOnGivenInterval(
-                scenario.roomType, 
-                checkInDate.toISOString().slice(0, 10),
-                scenario.checkOutDate.toISOString().slice(0, 10), 
-                data.firstName, 
-                data.lastName, 
-                data.email, 
-                data.phone
-            );
-        });
-    });
-});
+
+            BookingPage.verifyDatesSetThemAndCheckNewValuesOfInputs(checkInDate.toISOString().slice(0, 10),scenario.checkOutDate.toISOString().slice(0, 10))
+            ReservationPage.checkPricesDaysAndTotal(scenario.roomType, checkInDate.toISOString().slice(0, 10), scenario.checkOutDate.toISOString().slice(0, 10))
+            ReservationPage.clickReserveNowButton()
+            ReservationPage.reserveRoom(data.firstName, data.lastName, data.email, data.phone)
+        })
+    })
+})
