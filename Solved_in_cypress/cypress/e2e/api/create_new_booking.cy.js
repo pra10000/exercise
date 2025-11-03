@@ -5,16 +5,15 @@ import GetBookings from '../../page_objects/api/GetBookingsFunctions'
 describe('POST /booking', () => {
 
     before(() => {
-        // First we delete all bookings to be able to create a new one on any date
-        DeleteBooking.deleteAllBookings() //DISABLED BECAUSE THE SYSTEM IS UNRELIABLE
-
-        // Check we have an array of bookings in the system
-        // Use 'return' to ensure Cypress waits for this asynchronous call to finish.
-        return GetBookings.getAllBookings().then((response) => {
-            expect(response.status).to.eq(200)
-            expect(response.body).to.be.an('array')
-            //expect(response.body).to.have.length(0)//COMMENTED BECAUSE THE SYSTEM IS UNRELIABLE
-        })
+        return DeleteBooking.deleteAllBookings()
+            .then(() => {
+                return GetBookings.getAllBookings()
+            })
+            .then((response) => {
+                expect(response.status).to.eq(200)
+                expect(response.body).to.be.an('array')
+                //expect(response.body).to.have.length(0) //COMMENTED BECAUSE THE SYSTEM IS UNRELIABLE
+            })
     })
 
     it('should create a new booking and return bookingid', () => {
@@ -36,7 +35,7 @@ describe('POST /booking', () => {
             additionalneeds: 'Breakfast'
         };
 
-        CreateBooking.createBooking(
+        return CreateBooking.createBooking(
             params.firstname,
             params.lastname,
             params.totalprice,
@@ -55,12 +54,13 @@ describe('POST /booking', () => {
                 depositpaid: params.depositpaid,
                 additionalneeds: params.additionalneeds
             })
-        
-            return GetBookings.getAllBookings().then((response) => {
-                expect(response.status).to.eq(200)
-                expect(response.body).to.be.an('array')
-                //expect(response.body).to.have.length(1) //COMMENTED BECAUSE THE SYSTEM IS UNRELIABLE
-            }) 
+
+            return GetBookings.getAllBookings()
+        })
+        .then((response) => {
+            expect(response.status).to.eq(200)
+            expect(response.body).to.be.an('array')
+            //expect(response.body).to.have.length(1) //COMMENTED BECAUSE THE SYSTEM IS UNRELIABLE
         })
     })
 })

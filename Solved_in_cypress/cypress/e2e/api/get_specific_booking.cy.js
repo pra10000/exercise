@@ -28,7 +28,6 @@ describe('GET /booking/{id}', () => {
       additionalneeds: 'Breakfast'
     }
 
-    // Proper chaining: delete all bookings first
     return DeleteBooking.deleteAllBookings() //DISABLED BECAUSE THE SYSTEM IS UNRELIABLE
       .then(() => {
         // Then create a new booking
