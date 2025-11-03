@@ -1,6 +1,8 @@
 import Auth from '../api/AuthFunction'
 import GetBookings from '../api/GetBookingsFunctions'
 
+//Commented because deletion through api is not reliable
+
 class DeleteBooking {
   deleteBooking(bookingId, token) {
     const baseApiUrl = Cypress.env('baseApiUrl')
@@ -27,8 +29,8 @@ class DeleteBooking {
           return null
         }
 
-        return cy.then(() => {
-          return Cypress.Promise.each(bookings, (b) => {
+        //return cy.then(() => {
+         // return Cypress.Promise.each(bookings, (b) => {
             //return this.deleteBooking(b.bookingid, token).then((deleteResponse) => {
             //  cy.log(`Deleted booking ID: ${b.bookingid} (status ${deleteResponse.status})`)
 
@@ -41,8 +43,8 @@ class DeleteBooking {
               //  }
               //})
             //})
-          })
-        })
+          //})
+        //})
       })
     })
   }
