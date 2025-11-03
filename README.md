@@ -18,7 +18,7 @@ c.The main errors of the contact form
 
 3.To do 
 
-a. Add dedicated selectos for tests
+a. Add dedicated selectors for tests
 
 b. Depending on the development of the application make the selectors more specific.(We need to maintain a balance between resilience and correctnes of tests
 example-If we check for an element on all the screen, this is resilient because it doesn't depend on any extra selectors, on the other hand it may not be correct when new developments are made because it moved on the screen in the wrong section or we have an extra element with the same selector. This directions need to be discussed in the team depending on the development of the project. Now it focuses on resilience more.)
