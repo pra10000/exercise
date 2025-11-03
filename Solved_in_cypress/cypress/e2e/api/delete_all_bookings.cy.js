@@ -7,7 +7,7 @@ describe('DELETE all bookings', () => {
 
   before(() => {
     // Step 1: Delete all existing bookings
-    return DeleteBooking.deleteAllBookings()
+    return DeleteBooking.deleteAllBookings()//DISABLED BECAUSE THE SYSTEM IS UNRELIABLE
       .then(() => {
         // Step 2: Verify deletions
         return GetBookings.getAllBookings()

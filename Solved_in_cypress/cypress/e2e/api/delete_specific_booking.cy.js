@@ -1,5 +1,6 @@
 import DeleteBooking from '../../page_objects/api/DeleteBookingsFunctions'
 import CreateBooking from '../../page_objects/api/CreateNewBookingFunction'
+import Auth from '../../page_objects/api/AuthFunction'
 import GetBookings from '../../page_objects/api/GetBookingsFunctions'
 
 describe('DELETE /booking/{id}', () => {
@@ -8,7 +9,7 @@ describe('DELETE /booking/{id}', () => {
 
   before(() => {
     // First delete all bookings
-    return DeleteBooking.deleteAllBookings()
+    return DeleteBooking.deleteAllBookings() //DISABLED BECAUSE THE SYSTEM IS UNRELIABLE
       .then(() => {
         // Check we have 0 bookings
         return GetBookings.getAllBookings()
@@ -17,8 +18,12 @@ describe('DELETE /booking/{id}', () => {
         expect(response.status).to.eq(200)
         expect(response.body).to.be.an('array')
         // expect(response.body).to.have.length(0)
-        
-        // Prepare booking dates
+
+        return Auth.getAuthToken()
+      })
+      .then((response) => {
+        token = response.body.token
+
         const startDate = new Date()
         const checkOutDate = new Date(startDate)
         checkOutDate.setDate(startDate.getDate() + 30)
@@ -44,18 +49,19 @@ describe('DELETE /booking/{id}', () => {
           params.checkin,
           params.checkout,
           params.additionalneeds
-        ).then((response) => {
-          expect(response.status).to.eq(200)
-          expect(response.body).to.have.property('bookingid')
-          expect(response.body.booking).to.include({
-            firstname: params.firstname,
-            lastname: params.lastname,
-            totalprice: params.totalprice,
-            depositpaid: params.depositpaid,
-            additionalneeds: params.additionalneeds
-          })
-          bookingId = response.body.bookingid
+        )
+      })
+      .then((response) => {
+        expect(response.status).to.eq(200)
+        expect(response.body).to.have.property('bookingid')
+        expect(response.body.booking).to.include({
+          firstname: 'Pascal',
+          lastname: 'Razvan',
+          totalprice: 300,
+          depositpaid: true,
+          additionalneeds: 'Breakfast'
         })
+        bookingId = response.body.bookingid
       })
       .then(() => {
         // Check we have 1 booking
