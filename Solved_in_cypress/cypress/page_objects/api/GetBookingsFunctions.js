@@ -12,7 +12,8 @@ getBookingById(bookingId) {
   const baseApiUrl = Cypress.env('baseApiUrl')
   return cy.request({
     method: 'GET',
-    url: `${baseApiUrl}/booking/${bookingId}`
+    url: `${baseApiUrl}/booking/${bookingId}`,
+    failOnStatusCode: false
   })
 }
 
