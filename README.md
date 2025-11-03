@@ -4,9 +4,9 @@
 
 a.Clone the repository, use the terminal, navigate to the folder you want to use and then use git clone with the link from this repository.
 
-b.How to install dependecies. Use "npm install" inside the folder with the package.json file(Solved in cypress).
+b.How to install dependecies. Use "npm install" inside the folder with the package.json file(Solved_in_cypress).
 
-c.You can run both the UI and API by using the "npx cypress open" inside the folder with the package.json file(Solved in cypress).
+c.You can run both the UI and API by using the "npx cypress open" inside the folder with the package.json file(Solved_in_cypress).
 
 2.What has been covered
 
