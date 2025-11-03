@@ -17,6 +17,7 @@ b.The main errors of the reserver form
 c.The main errors of the contact form
 
 3.To do 
+
 a. Add dedicated selectos for tests
 
 b. Depending on the development of the application make the selectors more specific.(We need to maintain a balance between resilience and correctnes of tests
