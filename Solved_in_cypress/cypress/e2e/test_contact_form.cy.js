@@ -127,7 +127,7 @@ describe('Test booking form errors in various scenarios', () => {
         CommonErrorsInFormsPage.checkGivenFieldSizeErrorBetweenGivenMinimumAndMaximumExistsAndIsVisible("Message", 20, 2000)
     })
 
-    it('Check all are to short', function() {
+    it('Check errors all are to short', function() {
         const data = this.contactData
         ContactPage.fillAllInputs(data.name, data.email, "0123", "test", "test")
         ContactPage.clickSubmitButton()
@@ -139,7 +139,7 @@ describe('Test booking form errors in various scenarios', () => {
         CommonErrorsInFormsPage.checkGivenFieldSizeErrorBetweenGivenMinimumAndMaximumExistsAndIsVisible("Message", 20, 2000)
     })
 
-    it('Check all are to long', function() {
+    it('Check errors all are to long', function() {
         const data = this.contactData
         ContactPage.fillAllInputs(data.name, data.email, "0712345678012345678900", 'T'.repeat(120), 'T'.repeat(2020))
         ContactPage.clickSubmitButton()

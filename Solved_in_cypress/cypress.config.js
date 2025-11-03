@@ -7,4 +7,7 @@ module.exports = defineConfig({
       // implement node event listeners here
     },
   },
-});
+  env: {
+    baseApiUrl: 'https://restful-booker.herokuapp.com', 
+  },
+})
