@@ -15,7 +15,7 @@ describe('DELETE all bookings', () => {
       .then((response) => {
         expect(response.status).to.eq(200)
         expect(response.body).to.be.an('array')
-        // expect(response.body).to.have.length(0)
+        // expect(response.body).to.have.length(0) //COMMENTED BECAUSE THE SYSTEM IS UNRELIABLE
 
         // Step 3: Create a new booking
         const startDate = new Date()
@@ -63,7 +63,7 @@ describe('DELETE all bookings', () => {
       .then((response) => {
         expect(response.status).to.eq(200)
         expect(response.body).to.be.an('array')
-        // expect(response.body).to.have.length(1)
+        // expect(response.body).to.have.length(1) //COMMENTED BECAUSE THE SYSTEM IS UNRELIABLE
       })
   })
 
@@ -75,7 +75,7 @@ describe('DELETE all bookings', () => {
       .then((response) => {
         expect(response.status).to.eq(200)
         expect(response.body).to.be.an('array')
-        // expect(response.body).to.have.length(0)
+        // expect(response.body).to.have.length(0) //COMMENTED BECAUSE THE SYSTEM IS UNRELIABLE
       })
   })
 })

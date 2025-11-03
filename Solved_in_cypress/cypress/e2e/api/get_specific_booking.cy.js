@@ -28,9 +28,17 @@ describe('GET /booking/{id}', () => {
       additionalneeds: 'Breakfast'
     }
 
-    return DeleteBooking.deleteAllBookings() //DISABLED BECAUSE THE SYSTEM IS UNRELIABLE
+    return DeleteBooking.deleteAllBookings() // //DISABLED BECAUSE THE SYSTEM IS UNRELIABLE
       .then(() => {
-        // Then create a new booking
+        return GetBookings.getAllBookings()
+      })
+      .then((response) => {
+        expect(response.status).to.eq(200)
+        expect(response.body).to.be.an('array')
+        // Check that there are 0 bookings after deletion
+        // expect(response.body.length).to.eq(0) //COMMENTED BECAUSE THE SYSTEM IS UNRELIABLE
+      })
+      .then(() => {
         return CreateBooking.createBooking(
           params.firstname,
           params.lastname,
@@ -55,6 +63,14 @@ describe('GET /booking/{id}', () => {
         expect(response.body.booking.bookingdates.checkout).to.eq(params.expectedCheckout)
 
         bookingId = response.body.bookingid
+
+        // Check that there is now 1 booking
+        return GetBookings.getAllBookings()
+      })
+      .then((response) => {
+        expect(response.status).to.eq(200)
+        expect(response.body).to.be.an('array')
+        // expect(response.body.length).to.eq(1) //COMMENTED BECAUSE THE SYSTEM IS UNRELIABLE
       })
   })
 

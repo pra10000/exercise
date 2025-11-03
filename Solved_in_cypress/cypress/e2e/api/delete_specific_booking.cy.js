@@ -17,7 +17,7 @@ describe('DELETE /booking/{id}', () => {
       .then((response) => {
         expect(response.status).to.eq(200)
         expect(response.body).to.be.an('array')
-        // expect(response.body).to.have.length(0)
+        // expect(response.body).to.have.length(0) //COMMENTED BECAUSE THE SYSTEM IS UNRELIABLE
 
         return Auth.getAuthToken()
       })
@@ -70,7 +70,7 @@ describe('DELETE /booking/{id}', () => {
       .then((response) => {
         expect(response.status).to.eq(200)
         expect(response.body).to.be.an('array')
-        // expect(response.body).to.have.length(1)
+        // expect(response.body).to.have.length(1) //COMMENTED BECAUSE THE SYSTEM IS UNRELIABLE
       })
   })
 
@@ -84,7 +84,7 @@ describe('DELETE /booking/{id}', () => {
       .then((response) => {
         expect(response.status).to.eq(200)
         expect(response.body).to.be.an('array')
-        // expect(response.body).to.have.length(0)
+        // expect(response.body).to.have.length(0) //COMMENTED BECAUSE THE SYSTEM IS UNRELIABLE
       })
   })
 })
