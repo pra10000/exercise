@@ -4,9 +4,17 @@ class SharedUtilities {
         return cy.contains("Welcome to Shady Meadows B&B")
     }
 
+    getGivenText(text){
+        return cy.contains(text)
+    }
+
     //Methods
     navigateToTestSite(){
         cy.visit('')
+    }
+    
+    checkGivenTextIsVisble(text){
+        this.getGivenText(text).should('be.visible')
     }
 
     checkTheUrlChangedToTheTestSite(){

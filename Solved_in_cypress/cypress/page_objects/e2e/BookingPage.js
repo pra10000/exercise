@@ -1,3 +1,4 @@
+import ReservationPage from './ReservationPage'
 import SharedUtilities from './SharedUtilities'
 
 class BookingPage {
@@ -89,9 +90,13 @@ class BookingPage {
         this.selectCheckOutDate(checkOutDate)
     }
 
-    verifyDatesSetThemAndCheckNewValuesOfInputs(checkInDate, checkOutDate) {
+    verifyDatesAndSetThem(checkInDate, checkOutDate) {
         SharedUtilities.verifyCheckInDateIsBeforeOrTheSameAsCheckOutDateAndThatWeUseRealValidFutureDates(checkInDate, checkOutDate)
         this.setCheckInDateAndCheckOutDate(checkInDate, checkOutDate)
+    }
+
+    checkTheNewDateInputsValues(checkInDate, checkOutDate)
+    {
         this.checkDateInsideDatePicker(this.CheckInDatePicker, checkInDate)
         this.checkDateInsideDatePicker(this.CheckOutDatePicker, checkOutDate)
     }
@@ -144,6 +149,12 @@ class BookingPage {
     clickBookNowButtonOfGivenTypeOfRoom(typeOfRoom) {
         this.BookNowButtonOfGivenTypeOfRoom(typeOfRoom).click()
     }
+
+    clickBookRoomOfTheGivenTypeOfRoomAndCheckPageChanges(typeOfRoom) { 
+        this.clickBookNowButtonOfGivenTypeOfRoom(typeOfRoom)
+        cy.url().should('include', 'reservation')
+        ReservationPage.checkBookThisRoomTitleExistsAndIsVisble()
+    }
 }
 
-export default new BookingPage();
+export default new BookingPage()

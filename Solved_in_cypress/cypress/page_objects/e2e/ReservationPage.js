@@ -30,6 +30,14 @@ class ReservationPage {
     get ReserveNowButtonWithoutId(){
         return cy.contains('button', 'Reserve Now')
     }
+    
+    get BookingConfirmedTitle(){
+        return cy.contains('Booking Confirmed')
+    }
+
+    get BookingConfirmedText(){
+        return cy.contains('Your booking has been confirmed for the following dates:')
+    }
 
     GetPriceUnderBookThisRoom(){
         return cy.contains('Book This Room')
@@ -129,12 +137,9 @@ class ReservationPage {
         this.ReserveNowButtonWithoutId.click()
     }
 
-    reserveRoom(firstName, lastName, email, phone){
+    fillFormReserveRoomAndCheckIfPostWasTriggered(firstName, lastName, email, phone){
         // 1 Fill reservation form
-        this.fillFirstName(firstName)
-        this.fillLastName(lastName)
-        this.fillEmail(email)
-        this.fillPhone(phone)
+        this.fillBookingForm(firstName, lastName, email, phone)
     
         // 2 Click Reserve Now button and set intercept
         cy.intercept('POST', '/api/booking').as('postBooking')
@@ -146,15 +151,29 @@ class ReservationPage {
         })
     }
 
-    checkPricesDaysAndTotal(typeOfRoom, checkInDate, checkOutDate){
+    fillBookingForm(firstName, lastName, email, phone){
+        if(firstName!=""){
+            this.fillFirstName(firstName)
+        }
+        if(lastName!=""){
+            this.fillLastName(lastName)
+        }
+        if(email!=""){
+            this.fillEmail(email)
+        }
+        if(phone!="")
+        {
+            this.fillPhone(phone)
+        }
+    }
+
+    clcikReserveNowOnGivenTypeOfRoomAndCheckPricesDaysAndTotal(typeOfRoom, checkInDate, checkOutDate){
         // 1 Compare price of room from booking page to the price on the reservation page
         // a.Get the price from the room card
         BookingPage.GetPriceFromRoomCard(typeOfRoom).then((priceFromRoomCard) => {
             
             // b.Book the room and verify we're on the reservation page
-            BookingPage.clickBookNowButtonOfGivenTypeOfRoom(typeOfRoom)
-            cy.url().should('include', 'reservation')
-            this.checkBookThisRoomTitleExistsAndIsVisble()
+            BookingPage.clickBookRoomOfTheGivenTypeOfRoomAndCheckPageChanges(typeOfRoom)
 
             // c.Now get the price from the reservation page
             this.GetPriceUnderBookThisRoom().then((priceFromReservationPage) => {
@@ -194,6 +213,19 @@ class ReservationPage {
             })
         })
     }
+
+    checkBookingConfirmedTitleExistsAndIsVisible(){
+        this.BookingConfirmedTitle.should('exist').and('be.visible')
+    }
+
+    checkBookingConfirmedTextExistsAndIsVisible(){
+        this.BookingConfirmedText.should('exist').and('be.visible')
+    }
+
+    checkBookingConfirmedTitleAndTextExistsAndIsVisible(){
+        this.checkBookingConfirmedTitleExistsAndIsVisible()
+        this.checkBookingConfirmedTextExistsAndIsVisible()
+    }
 }
 
-export default new ReservationPage();
+export default new ReservationPage()
